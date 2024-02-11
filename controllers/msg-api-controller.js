@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
 
 const messageModel = mongoose.model('message');
+const userModel = mongoose.model('user');
 
-// GET Request Handler
+// GET Request Handler: Get all messages
 const getAllMessages = async (req, res) => {
     try {
         let messages = await messageModel.find({}, '', { sort: { _id: -1 } }).exec();
@@ -12,7 +13,7 @@ const getAllMessages = async (req, res) => {
     }
 };
 
-// POST Request Handler
+// POST Request Handler: Add a new message
 const addNewMessage = async (req, res) => {
     try {
         let message = await messageModel.create(req.body);
@@ -25,4 +26,18 @@ const addNewMessage = async (req, res) => {
     }
 };
 
-export { getAllMessages, addNewMessage }
+// POST Request Handler: Add a new user
+const addNewUser = async (req, res) => {
+    try {
+        let user = await userModel.create(req.body);
+        res.status(200).send(user);
+    } catch (err) {
+        res
+            .status(400)
+            .send('Bad Request. The message in the body of the \
+            Request is either missing or malformed.');
+    }
+}
+
+
+export { getAllMessages, addNewMessage, addNewUser }

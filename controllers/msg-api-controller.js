@@ -2,12 +2,6 @@ import mongoose from 'mongoose';
 
 const messageModel = mongoose.model('message');
 
-// let messages = [
-//     { id: 0, name: "Bob", msgText: "Hello there" },
-//     { id: 1, name: "Joe", msgText: "Hey" },
-//     { id: 2, name: "Bob", msgText: "How are you?" }
-// ]
-
 // GET Request Handler
 const getAllMessages = async (req, res) => {
     try {
@@ -21,9 +15,7 @@ const getAllMessages = async (req, res) => {
 // POST Request Handler
 const addNewMessage = async (req, res) => {
     try {
-        let message = await messageSchema.validate(req.body);
-        message.id = messages.length
-        messages.unshift(message);
+        let message = await messageModel.create(req.body);
         res.status(200).send(message);
     } catch (err) {
         res

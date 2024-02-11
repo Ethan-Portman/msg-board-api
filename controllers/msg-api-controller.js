@@ -26,6 +26,16 @@ const addNewMessage = async (req, res) => {
     }
 };
 
+// GET Request Handler: Get all users
+const getAllUsers = async (req, res) => {
+    try {
+        let users = await userModel.find({}, '', { sort: { _id: -1 } }).exec();
+        res.status(200).json(users);
+    } catch (err) {
+        res.status(400).send('Bad Request');
+    }
+}
+
 // POST Request Handler: Add a new user
 const addNewUser = async (req, res) => {
     try {
@@ -40,4 +50,4 @@ const addNewUser = async (req, res) => {
 }
 
 
-export { getAllMessages, addNewMessage, addNewUser }
+export { getAllMessages, addNewMessage, getAllUsers, addNewUser }

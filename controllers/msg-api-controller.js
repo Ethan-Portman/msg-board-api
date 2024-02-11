@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 
 const messageModel = mongoose.model('message');
 const userModel = mongoose.model('user');
@@ -26,7 +28,7 @@ const addNewMessage = async (req, res) => {
     }
 };
 
-// GET Request Handler: Get all users
+// GET Request Handler: Get all users: **** Get rid of it eventually
 const getAllUsers = async (req, res) => {
     try {
         let users = await userModel.find({}, '', { sort: { _id: -1 } }).exec();
@@ -34,7 +36,7 @@ const getAllUsers = async (req, res) => {
     } catch (err) {
         res.status(400).send('Bad Request');
     }
-}
+};
 
 // POST Request Handler: Add a new user
 const addNewUser = async (req, res) => {
@@ -54,7 +56,35 @@ const addNewUser = async (req, res) => {
             .send('Bad Request. The message in the body of the \
             Request is either missing or malformed.');
     }
-}
+};
+
+const login = async (req, res) => {
+    const { name, password } = req.body;
+
+    try {
+        // Find the user by username
+        const existingUser = await userModel.findOne({ name: name }).exec();
+        console.log(existingUser);
+
+        // If the user does not exist or the password doesn't match, return an error
+        if (!existingUser || !(await existingUser.comparePassword(password))) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        console.log("Generate a token");
+
+        // Generate a JWT token
+        const token = jwt.sign({ userId: existingUser._id }, "NotVerySecure", {
+            expiresIn: '1h',  // Corrected option name
+        });
+
+        // Send the token in the response
+        res.status(200).json({ token });
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+};
 
 
-export { getAllMessages, addNewMessage, getAllUsers, addNewUser }
+export { getAllMessages, addNewMessage, getAllUsers, addNewUser, login }

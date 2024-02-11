@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllMessages, addNewMessage, addNewUser, getAllUsers } from '../controllers/msg-api-controller.js';
+import { getAllMessages, addNewMessage, addNewUser, getAllUsers, login } from '../controllers/msg-api-controller.js';
 
 const router = express.Router();
 
@@ -10,5 +10,9 @@ router.route('/messages')
 router.route('/users')
     .get(getAllUsers)
     .post(addNewUser);
+
+router.route('/login')
+    .get(getAllUsers)
+    .post(login);
 
 export default router;

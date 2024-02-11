@@ -1,20 +1,27 @@
-import yup from 'yup';
+import mongoose from 'mongoose';
 
-// Data Schema for a New Message
-const messageSchema = yup.object().shape({
-    name: yup
-        .string()
-        .trim()
-        .min(3)
-        .max(15)
-        .matches(/^[A-Za-z0-9_]+$/)
-        .required(),
-    msgText: yup
-        .string()
-        .trim()
-        .min(2)
-        .max(30)
-        .required()
+const messageSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+        trim: true,
+        minLength: 3,
+        maxLength: 15,
+        match: /[A-Za-z0-9_]+$/
+    },
+    msgText: {
+        type: String,
+        required: true,
+        trim: true,
+        minLength: 2,
+        maxLength: 30
+    }
 });
 
-export default messageSchema;
+messageSchema.set('toJSON', {
+    versionKey: false,
+    virtuals: true,
+    transform: (doc, ret) => { delete ret._id; }
+})
+
+export default mongoose.model('message', messageSchema);

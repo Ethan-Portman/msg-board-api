@@ -39,6 +39,13 @@ const getAllUsers = async (req, res) => {
 // POST Request Handler: Add a new user
 const addNewUser = async (req, res) => {
     try {
+        // Check if username already exists
+        const existingUser = await userModel.findOne({ name: req.body.name }).exec();
+
+        if (existingUser) {
+            return res.status(400).send('Username already exists. Please choose a different username.');
+        }
+
         let user = await userModel.create(req.body);
         res.status(200).send(user);
     } catch (err) {

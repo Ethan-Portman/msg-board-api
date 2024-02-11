@@ -1,18 +1,21 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-let dbURI = 'mongodb://mongo:27017/messageBoardDB';
+// Connect to locally running MongoDB Instance
+let dbURI = 'mongodb://localhost:27017/msgs_db';
 mongoose.set('strictQuery', true);
 mongoose.connect(dbURI);
 
-// print message to console when connected to DB
+// Print message to console when connectted to DB
 mongoose.connection.on('connected', () => {
     console.log('Mongoose connected to ' + dbURI);
 });
 
-// Print error messages with connection issues
+// Print error message to console if there is error connecting
 mongoose.connection.on('error', (err) => {
-    console.log('Mongoose Connection error: ' + err);
+    console.log('Mongoose connection error: ' + err);
 });
 mongoose.connection.on('disconnected', () => {
     console.log('Mongoose disconnected');
 });
+
+import './models/message-schema.js';

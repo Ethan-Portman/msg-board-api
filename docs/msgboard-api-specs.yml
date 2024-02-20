@@ -18,7 +18,7 @@ components:
           minLength: 2
           maxLength: 15
           pattern: "^[A-Za-z0-9_]+$"
-          description: "Name of user"
+          description: Name of user
           example: Fred
     userWithPassword:
       allOf:
@@ -31,7 +31,7 @@ components:
               type: string
               minLength: 2
               maxLength: 15
-              description: "Password of user"
+              description: Password of user
               example: "password1!"
     userWithID:
       allOf:
@@ -42,8 +42,31 @@ components:
           properties:
             id:
               type: string
-              description: "User's unique identifier"
+              description: User's unique identifier
               example: "65d3f8a51424b44860138f4d"
+    authenticationInfo:
+      type: object
+      description: Authentication Information
+      required:
+        - id
+        - token
+        - role
+      properties:
+        id:
+          type: string
+          description: User's unique identifier
+          example: "65d3f8a51424b44860138f4d"
+        token:
+          type: string
+          description: jvt token containing users role
+          example: 
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWQzZjhhN
+            TE0MjRiNDQ4NjAxMzhmNGQiLCJyb2xlIjoidXNlciIsImlhdCI6MTcwODM5NDAwNi
+            wiZXhwIjoxNzA4Mzk3NjA2fQ.KkFB2EsJQUD5oBukSVLbuGUxVPWVbaakKUhbxVA47ok
+        role:
+          type: string
+          description: The role of the user
+          example: "user"
     message:
       type: object
       description: A message
@@ -83,7 +106,7 @@ paths:
   /users:
     description: All the users
     post:
-      summary: Register a new user
+      summary: Register new user
       operationId: addNewUser
       description: |
         Registers a new user to the App. 
@@ -106,6 +129,36 @@ paths:
           description: Username already exists.
         "400":
           description: Bad Request.
+
+  /login:
+    description: Logging in
+    post:
+      summary: Log in 
+      operationId: login
+      description: |
+        Logs user into the Application by giving them
+        an access token. The token will represent 
+        being logged in. The credentials must match with 
+        a registered user.
+      requestBody:
+        description: User's credentials
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/userWithPassword"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/authenticationInfo"
+        "409":
+          description: Username already exists.
+        "400":
+          description: Bad Request.
+
+
   /messages:
     description: All the messages
     get:

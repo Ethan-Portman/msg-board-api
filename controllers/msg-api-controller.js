@@ -5,6 +5,51 @@ import bcrypt from 'bcrypt';
 const messageModel = mongoose.model('message');
 const userModel = mongoose.model('user');
 
+/*
+Post Request handler for /users
+  - Registers a new user to the database
+    - 400 if successful
+    - 409 if username already exists
+    - 400 for other errors
+*/
+const addNewUser = async (req, res) => {
+    try {
+        const existingUser = await userModel.findOne({ name: req.body.name }).exec();
+        if (existingUser) { return res.status(409).send('Username already exists'); }
+
+        const newUser = await userModel.create(req.body);
+        res.status(200).send(newUser);
+
+    } catch (err) { res.status(400).send('Bad Request'); }
+};
+
+/*
+Post Request handler for /login
+  - Verifies a users credentials and sends them an access token
+    - 400 if successful
+    - 401 for invalid credentials
+    - 400 for other errors
+  - Upon success, generates a JWT token valid for one hour
+*/
+const login = async (req, res) => {
+    const { name, password } = req.body;
+
+    try {
+        const existingUser = await userModel.findOne({ name: name }).exec();
+        if (!existingUser || !(await existingUser.comparePassword(password))) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        const userRole = existingUser.role || 'user';
+        const token = jwt.sign({ userId: existingUser._id, role: userRole }, "NotVerySecure", {
+            expiresIn: '1h',
+        });
+        res.status(200).json({ id: existingUser._id, token: token, role: userRole });
+
+    } catch (error) { res.status(400).send('Bad Request.'); }
+};
+
+
 // GET Request Handler: Get all messages
 const getAllMessages = async (req, res) => {
     try {
@@ -28,63 +73,27 @@ const addNewMessage = async (req, res) => {
     }
 };
 
-// GET Request Handler: Get all users: **** Get rid of it eventually
-const getAllUsers = async (req, res) => {
+
+const validateToken = async (req, res) => {
+    const { token } = req.body;
     try {
-        let users = await userModel.find({}, '', { sort: { _id: -1 } }).exec();
-        res.status(200).json(users);
-    } catch (err) {
-        res.status(400).send('Bad Request');
-    }
-};
+        // Verify the token
+        jwt.verify(token, 'NotVerySecure', (err, decoded) => {
+            if (err) {
+                // Token verification failed
+                console.log('Token verification failed:', err);
+                return res.status(401).json({ valid: false });
+            }
 
-// POST Request Handler: Add a new user
-const addNewUser = async (req, res) => {
-    try {
-        // Check if username already exists
-        const existingUser = await userModel.findOne({ name: req.body.name }).exec();
-
-        if (existingUser) {
-            return res.status(400).send('Username already exists. Please choose a different username.');
-        }
-
-        let user = await userModel.create(req.body);
-        res.status(200).send(user);
-    } catch (err) {
-        res
-            .status(400)
-            .send('Bad Request. The message in the body of the \
-            Request is either missing or malformed.');
-    }
-};
-
-const login = async (req, res) => {
-    const { name, password } = req.body;
-
-    try {
-        // Find the user by username
-        const existingUser = await userModel.findOne({ name: name }).exec();
-        console.log(existingUser);
-
-        // If the user does not exist or the password doesn't match, return an error
-        if (!existingUser || !(await existingUser.comparePassword(password))) {
-            return res.status(401).json({ error: 'Invalid credentials' });
-        }
-
-        console.log("Generate a token");
-
-        // Generate a JWT token
-        const token = jwt.sign({ userId: existingUser._id }, "NotVerySecure", {
-            expiresIn: '1h',  // Corrected option name
+            // Token is valid
+            console.log('Token is valid:', decoded);
+            res.status(200).json({ valid: true, userId: decoded.userId })
         });
-
-        // Send the token in the response
-        res.status(200).json({ token });
     } catch (error) {
-        console.error('Login error:', error);
+        console.error('Token validation error:', error);
         res.status(500).send('Internal Server Error');
     }
 };
 
 
-export { getAllMessages, addNewMessage, getAllUsers, addNewUser, login }
+export { getAllMessages, addNewMessage, addNewUser, login, validateToken }

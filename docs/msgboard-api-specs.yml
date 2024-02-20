@@ -3,31 +3,47 @@ info:
   title: Message Board API
   version: "1.0.0"
 servers:
-  - url: 127.0.0.1:3004/v1
+  - url: http://172.30.71.9:3004/v1
     description: Message Board API Dev Server
 security: []
 components:
   schemas:
-    user:
+    baseUser:
       type: object
-      description: A user
       required:
         - name
-        - password
       properties:
         name:
           type: string
-          minLength: 2,
-          maxLength: 15,
+          minLength: 2
+          maxLength: 15
           pattern: "^[A-Za-z0-9_]+$"
           description: "Name of user"
           example: Fred
-        password:
-          type: string
-          minLength: 2
-          maxLength: 15
-          description: "Password of user"
-          example: "password1!"
+    userWithPassword:
+      allOf:
+        - $ref: "#/components/schemas/baseUser"
+        - description: A user with a password
+          required:
+            - password
+          properties:
+            password:
+              type: string
+              minLength: 2
+              maxLength: 15
+              description: "Password of user"
+              example: "password1!"
+    userWithID:
+      allOf:
+        - $ref: "#/components/schemas/baseUser"
+        - description: A user with a ID
+          required:
+            - id
+          properties:
+            id:
+              type: string
+              description: "User's unique identifier"
+              example: "65d3f8a51424b44860138f4d"
     message:
       type: object
       description: A message
@@ -64,6 +80,32 @@ components:
               description: message's id
               example: 1
 paths:
+  /users:
+    description: All the users
+    post:
+      summary: Register a new user
+      operationId: addNewUser
+      description: |
+        Registers a new user to the App. 
+        Once registered, the user will be able 
+        to login with their credentials.
+      requestBody:
+        description: User's credentials
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/userWithPassword"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/userWithID"
+        "409":
+          description: Username already exists.
+        "400":
+          description: Bad Request.
   /messages:
     description: All the messages
     get:

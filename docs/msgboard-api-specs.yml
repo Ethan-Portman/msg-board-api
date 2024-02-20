@@ -8,6 +8,26 @@ servers:
 security: []
 components:
   schemas:
+    user:
+      type: object
+      description: A user
+      required:
+        - name
+        - password
+      properties:
+        name:
+          type: string
+          minLength: 2,
+          maxLength: 15,
+          pattern: "^[A-Za-z0-9_]+$"
+          description: "Name of user"
+          example: Fred
+        password:
+          type: string
+          minLength: 2
+          maxLength: 15
+          description: "Password of user"
+          example: "password1!"
     message:
       type: object
       description: A message
@@ -85,4 +105,11 @@ paths:
           description: |
             Bad Request. The message in the body of the Request 
             is either missing or malformed.
+  # /users:
+  #   description: All the users
+  #     get:
+  #       summary: List all users
+  #       operationId: getAllUsers
+
+
 

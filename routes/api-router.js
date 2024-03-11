@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllMessages, addNewMessage, addNewUser, login, validateToken } from '../controllers/msg-api-controller.js';
+import { getAllMessages, addNewMessage, addNewUser, login, validateToken, getIdFromName, getAllUsers } from '../controllers/msg-api-controller.js';
 
 const router = express.Router();
 
@@ -8,6 +8,7 @@ router.route('/messages')
     .post(addNewMessage);
 
 router.route('/users')
+    .get(getAllUsers)
     .post(addNewUser);
 
 router.route('/login')
@@ -15,5 +16,8 @@ router.route('/login')
 
 router.route('/validate-token')
     .post(validateToken);
+
+router.route('/getIdFromName')
+    .get(getIdFromName);
 
 export default router;

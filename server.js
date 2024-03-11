@@ -35,10 +35,11 @@ io.on('connection', (socket) => {
     console.log('a user connected');
 
     // Handle WebSocket events here
-    socket.on('message', (message) => {
-        console.log('Received message:', message);
-        // Broadcast the message to all connected clients
-        io.emit('message', message);
+    socket.on('privateMessage', (message) => {
+        const sender = message.sender;
+        const recipient = message.recipient;
+        const text = message.message;
+        io.to(recipient).emit('privateMessage', { senderId, message });
     });
 
     socket.on('disconnect', () => {

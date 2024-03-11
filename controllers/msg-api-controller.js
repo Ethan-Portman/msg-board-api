@@ -95,5 +95,25 @@ const validateToken = async (req, res) => {
     }
 };
 
+const getIdFromName = async (req, res) => {
+    const { name } = req.body;
+    try {
+        const id = await userModel.findOne({ name: name }, '_id').exec();
+        res.status(200).json(id);
+    } catch (error) {
+        console.log(error);
+    }
+}
 
-export { getAllMessages, addNewMessage, addNewUser, login, validateToken }
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await userModel.find({}, '_id name').exec();
+        res.status(200).json(users);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+
+export { getAllMessages, addNewMessage, addNewUser, login, validateToken, getIdFromName, getAllUsers }
